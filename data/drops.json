@@ -1,0 +1,8 @@
+{
+  "_note": "Upstream rows that are not applications. Dropped WITH A REASON, never silently. Each entry names the source and what the upstream actually clustered. Revisit if upstreams fix their clusters.",
+  "go": {
+    "source": "mmt-dpi",
+    "reason": "Miscluster: MMT groups government ccTLD second-level labels (.go.ke, .go.tz, .go.ug, .go.id) under one PROTO_GO id. These are Kenyan/Tanzanian/Ugandan/Indonesian government sites, not an application. Note the unrelated .go.com belongs to Disney.",
+    "examples": ["kra.go.ke", "ecitizen.go.ke", "pajak.go.id"]
+  }
+}

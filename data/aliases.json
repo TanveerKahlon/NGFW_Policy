@@ -1,0 +1,10 @@
+{
+  "_note": "Same real-world service harvested under two ids: merge into the canonical id (union of evidence). Human-reviewed; extend only with provenance. Pure separator variants (epic-games/epicgames) are handled automatically by the separator-free identity key and do NOT belong here. Parent/child granularity (ebay vs ebay-search) is NOT an alias - those are distinct rows pending a hierarchy model.",
+  "doh-dot": "dns-over-https",
+  "amazon-video": "amazon-prime",
+  "aws-cloudfront": "cloudfront",
+  "tco": "twitter",
+  "winupdate": "windows-update",
+  "twitchtv": "twitch",
+  "microsoft-azure": "azure"
+}

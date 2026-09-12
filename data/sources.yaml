@@ -1,0 +1,292 @@
+# DPI source registry — Phase A inventory.
+#
+# Every `license` and `counts` field was verified against the repository API or
+# the file's own header on `verified` date. Do not edit these from memory or
+# from documentation: several published license claims proved wrong.
+#
+# license_confidence:
+#   verified  - read from repo metadata or the LICENSE/file header itself
+#   unread    - a license exists but its terms have not been read (blocking)
+#   unknown   - not yet established
+
+meta:
+  target_distinct_apps: 3000
+  verified_on: 2026-09-10
+  posture: research          # collect regardless of license; license is metadata
+
+sources:
+
+  # ---------------------------------------------------------- dissection engines
+  - name: ndpi
+    tier: dissector
+    repo: https://github.com/ntop/nDPI
+    license: LGPL-3.0
+    license_confidence: verified
+    language: C
+    status: very_active
+    counts:
+      protocol_ids: 495           # ndpi_protocol_ids.h
+      documented_protocols: 434   # doc/protocols.rst
+      dissector_files: 264        # src/lib/protocols/*.c
+      generated_match_bytes: 3256783
+      content_match_bytes: 215231
+    contributes: Reference implementation; largest open IP/ASN/domain attribution tables
+    extract:
+      - path: src/lib/inc_generated/
+        strategy: REGENERATE              # do NOT copy — see rederivable below
+      - path: src/lib/ndpi_content_match.c.inc
+        strategy: reference_only          # editorial curation; genuinely entangled
+    rederivable:
+      # VERIFIED: nDPI ships the generators. Its 3.2 MB of tables are machine
+      # transformations of PUBLIC upstream feeds. Regenerating from the same
+      # primaries under our own build removes the LGPL entanglement AND yields
+      # fresher data than nDPI's last regeneration. Highest-leverage move.
+      verified: true
+      generator_dir: utils/
+      generators:
+        - aws_ip_addresses_download.sh
+        - azure_ip_addresses_download.sh
+        - cloudflare_ip_addresses_download.sh
+        - google_cloud_ip_addresses_download.sh
+        - akamai_ip_addresses_download.sh
+        - icloud_private_relay_ip_addresses_download.sh
+        - mullvad_ip_addresses_download.sh
+        - digitalocean_ip_addresses_download.sh
+        - github_ip_addresses_download.sh
+        - crawlers_ip_addresses_download.sh
+        - asn_update.sh
+        - get_routes_by_asn.sh
+        - get_routes6_by_asn.sh
+        - ipaddr2list.py
+        - mergeipaddrlist.py
+    linkable: dynamic_only              # LGPL-3.0 relink obligation
+
+  - name: mmt-dpi
+    tier: dissector
+    repo: https://github.com/Montimage/mmt-dpi
+    license: Apache-2.0
+    license_confidence: verified
+    language: C
+    status: active
+    counts:
+      protocol_defines: 682             # mmt_tcpip_protocols.h
+    contributes: Permissive C engine; 5G/LTE plugins (GTP, NAS, NGAP)
+    linkable: "yes"
+
+  - name: peafowl
+    tier: dissector
+    repo: https://github.com/DanieleDeSensi/peafowl
+    license: MIT
+    license_confidence: verified
+    language: C/C++
+    status: active
+    contributes: Permissive; multicore linear scalability
+    linkable: "yes"
+
+  - name: libprotoident
+    tier: dissector
+    repo: https://github.com/LibtraceTeam/libprotoident
+    license: LGPL-3.0            # relicensed from GPL-2.0; request granted
+    license_confidence: verified
+    language: C++
+    status: maintained
+    counts: {protocols: 500}
+    contributes: Classifies on first 4 payload bytes each direction — privacy-preserving
+    linkable: dynamic_only
+
+  - name: zeek
+    tier: dissector
+    repo: https://github.com/zeek/zeek
+    license: BSD-3-Clause        # LBNL/ICSI; registry reports NOASSERTION
+    license_confidence: verified
+    language: C++
+    status: very_active
+    counts: {analyzers: 60}
+    contributes: Deep session semantics
+    linkable: "yes"
+
+  - name: spicy
+    tier: dissector
+    repo: https://github.com/zeek/spicy
+    license: BSD-3-Clause
+    license_confidence: verified
+    language: C++
+    status: very_active
+    contributes: Compiles protocol grammars ahead-of-time into linkable C++
+    linkable: "yes"
+
+  - name: go-dpi
+    tier: reference
+    repo: https://github.com/mushorg/go-dpi
+    license: MIT
+    license_confidence: verified
+    status: dead                 # last commit 2022-11-06
+    contributes: Reference only; mostly nDPI/libprotoident wrappers
+
+  - name: junkie
+    tier: reference
+    repo: https://github.com/rixed/junkie
+    license: unknown
+    license_confidence: unknown
+    status: low_activity
+    contributes: Reference only
+
+  # --------------------------------------------------------- signature corpora
+  - name: openappid-odp
+    tier: corpus
+    url: https://www.snort.org/downloads        # snort-openappid.tar.gz
+    license: GPL-2.0
+    license_confidence: verified                # read from the tarball's LICENSE + per-file headers
+    owner: Sourcefire/Cisco
+    counts:
+      detectors_claimed: 2600
+      detectors_measured: 564     # distinct detection_name across 617 Lua files
+      appmapping_rows: 3374
+      appmapping_flagged: 2494    # the source of the bogus '~2600 detectors' claim
+    measurement:
+      # CONFIRMED 2026-09-10: "~2600" matches the 2,494 FLAGGED rows of
+      # appMapping.data, which is an ID REGISTRY (880 further rows are bare
+      # IANA service names). Real behavioural detectors = 564 distinct
+      # detection_name values across 617 Lua files -- 78% below the headline.
+      method: >
+        Count distinct appIds referenced by addAppUrl / addHostPortApp /
+        addPortPatternClient / DetectorPackageInfo calls across odp/lua/**,
+        and report it alongside the raw appMapping.data row count.
+      priority: done                      # measured 2026-09-10: 564, not ~2600
+    contributes: Largest single application corpus; ~85% of the app count
+    blocking: "false"          # resolved: plain GPL-2.0, no bespoke EULA
+    note: >
+      Detector content is NOT GPL and is licensed separately from Snort's GPLv2
+      engine. Read the agreement before scheduling extraction — the whole target
+      depends on redistribution terms nobody has read.
+
+  - name: netify-apps
+    tier: corpus
+    url: https://gitlab.com/netify.ai/public/netify-agent/-/raw/master/deploy/netify-apps.conf
+    license: Apache-2.0
+    license_confidence: verified                # read from the file's own header
+    owner: eGloo Inc.
+    counts:
+      apps: 199
+      rules_total: 4183
+      rules_domain: 3374
+      rules_cidr: 783
+      rules_expression: 26
+    contributes: Clean permissive corpus; format maps 1:1 onto our app/rule schema
+    format:
+      app: "app:<id>:netify.<name>"
+      dom: "dom:<app_id>:<domain>"
+      net: "net:<app_id>:<cidr>"
+      nsd: "nsd:-1:<n>:<base64 expression>"
+
+  - name: suricata-et-open
+    tier: corpus
+    repo: https://github.com/OISF/suricata
+    license: GPL-2.0
+    license_confidence: verified
+    contributes: Threat rules; some application fingerprinting
+
+  - name: arkime
+    tier: corpus
+    repo: https://github.com/arkime/arkime
+    license: Apache-2.0
+    license_confidence: verified
+    contributes: JA4 fingerprinting and metadata model
+
+  - name: wireshark
+    tier: reference
+    repo: https://github.com/wireshark/wireshark
+    license: GPL-2.0
+    license_confidence: verified
+    counts: {dissectors: 500}
+    contributes: Reference only; inline-unsuitable. "3000 protocols" counts differently
+
+  # ------------------------------------------------------------- live feeds
+  - name: cloud-ip-ranges
+    tier: feed
+    license: varies_by_provider
+    license_confidence: unknown
+    refresh: daily
+    endpoints:
+      aws: https://ip-ranges.amazonaws.com/ip-ranges.json
+      gcp: https://www.gstatic.com/ipranges/cloud.json
+      cloudflare_v4: https://www.cloudflare.com/ips-v4
+      cloudflare_v6: https://www.cloudflare.com/ips-v6
+      oracle: https://docs.oracle.com/en-us/iaas/tools/public_ip_ranges.json
+    aggregators:
+      - https://github.com/rezmoss/cloud-provider-ip-addresses
+      - https://github.com/tobilg/public-cloud-provider-ip-ranges
+    contributes: Fresh IP attribution; decays fast, needs a refresh pipeline
+
+  # -------------------------------------------------------- infrastructure
+  - name: vectorscan
+    tier: infrastructure
+    repo: https://github.com/VectorCamp/vectorscan
+    license: BSD-3-Clause        # Intel Hyperscan; verified in LICENSE text
+    license_confidence: verified
+    contributes: SIMD multi-regex at line rate — the answer to L7-filter's CPU cost
+    linkable: "yes"
+
+  - name: pcapplusplus
+    tier: infrastructure
+    repo: https://github.com/seladb/PcapPlusPlus
+    license: Unlicense
+    license_confidence: verified
+    contributes: Packet parsing; libpcap/DPDK/AF_XDP/PF_RING wrappers
+    linkable: "yes"
+
+  - name: libtins
+    tier: infrastructure
+    repo: https://github.com/mfontanini/libtins
+    license: BSD-2-Clause
+    license_confidence: verified
+    contributes: Packet parsing and crafting
+    linkable: "yes"
+
+  # ------------------------------------------------------------- derivation tier
+  # First-party derivation from public data. This is the ONLY route past
+  # ~2,500 apps and the only route to a permissively-licensed corpus.
+  # Signatures derived here are ours — no upstream license attaches.
+  # Start during Phase C, not after it.
+
+  - name: certificate-transparency
+    tier: derivation
+    url: https://certificate.transparency.dev/
+    license: public_data
+    license_confidence: verified
+    contributes: >
+      SAN harvesting from CT logs -> per-organization hostname sets. Public,
+      free, unencumbered and enormous. Closest open analogue to how commercial
+      vendors actually reach four-digit app counts.
+    yields: Tier B (vendor-owned names) at scale
+
+  - name: rir-delegated-peeringdb
+    tier: derivation
+    urls:
+      rir_delegated: https://ftp.ripe.net/pub/stats/            # + ARIN/APNIC/LACNIC/AFRINIC
+      peeringdb: https://www.peeringdb.com/api/
+    license: public_data
+    license_confidence: verified
+    contributes: ASN -> organization mapping; feeds org identity + Tier C
+    yields: Tier C (IP/ASN ownership)
+
+  - name: public-suffix-list
+    tier: derivation
+    url: https://publicsuffix.org/list/public_suffix_list.dat
+    license: MPL-2.0
+    license_confidence: verified
+    contributes: >
+      eTLD+1 computation. MANDATORY for domain normalization and for the
+      polysemous-domain guard in reconciliation — without it co.uk and
+      s3.amazonaws.com both break identity matching.
+    vendored: required
+
+  - name: app-store-metadata
+    tier: derivation
+    license: unknown
+    license_confidence: unknown
+    contributes: >
+      Publisher -> domain mapping. Where the long tail of "3000 apps" actually
+      lives for every commercial vendor, and the least-served area in open
+      source. Verify terms of service before harvesting.
+    yields: Tier B long tail

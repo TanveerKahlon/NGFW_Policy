@@ -1,0 +1,718 @@
+<title>Signature Register</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --paper:#f7f8f6; --surface:#fffffe; --surface-2:#eff1ee; --line:#dcdfda; --line-soft:#e8eae6;
+  --ink:#171b19; --ink-2:#4b524e; --ink-3:#767d78;
+  --accent:#2a78d6; --accent-soft:#e7f0fc; --accent-ink:#1c5cab;
+  --good:#0ca30c; --warn:#fab219; --warn-ink:#8a6104; --crit:#d03b3b;
+  --good-bg:#e6f5e6; --warn-bg:#fdf3dc; --crit-bg:#fae9e9;
+  --bar-track:#e4e7e2; --scrim:rgba(23,27,25,.38);
+  --shadow:0 1px 2px rgba(23,27,25,.06), 0 8px 24px -16px rgba(23,27,25,.24);
+  --drawer-shadow:-18px 0 48px -24px rgba(23,27,25,.45);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#12161a; --surface:#181d22; --surface-2:#1f252b; --line:#2c343b; --line-soft:#232a30;
+    --ink:#e8ecef; --ink-2:#a4aeb6; --ink-3:#76838c;
+    --accent:#3987e5; --accent-soft:#16283d; --accent-ink:#7db2ee;
+    --good:#0ca30c; --warn:#fab219; --warn-ink:#fab219; --crit:#d03b3b;
+    --good-bg:#12301a; --warn-bg:#3a2e10; --crit-bg:#3a1c1c;
+    --bar-track:#262d34; --scrim:rgba(0,0,0,.62);
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+    --drawer-shadow:-18px 0 48px -24px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#12161a; --surface:#181d22; --surface-2:#1f252b; --line:#2c343b; --line-soft:#232a30;
+  --ink:#e8ecef; --ink-2:#a4aeb6; --ink-3:#76838c;
+  --accent:#3987e5; --accent-soft:#16283d; --accent-ink:#7db2ee;
+  --good:#0ca30c; --warn:#fab219; --warn-ink:#fab219; --crit:#d03b3b;
+  --good-bg:#12301a; --warn-bg:#3a2e10; --crit-bg:#3a1c1c;
+  --bar-track:#262d34; --scrim:rgba(0,0,0,.62);
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.7);
+  --drawer-shadow:-18px 0 48px -24px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--paper); color:var(--ink);
+  font-family:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:15px; line-height:1.5; margin:0;
+  padding-block:28px 64px; padding-left:20px; padding-right:20px;
+  -webkit-font-smoothing:antialiased;
+}
+body.locked{overflow:hidden}
+.wrap{max-width:1180px; margin:0 auto; display:flex; flex-direction:column; gap:34px}
+h1,h2,h3{margin:0; text-wrap:balance; letter-spacing:-.015em}
+h1{font-size:clamp(1.7rem,4vw,2.3rem); font-weight:700; line-height:1.15}
+h2{font-size:1.12rem; font-weight:600}
+h3{font-size:.95rem; font-weight:600}
+p{margin:0}
+.mono{font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace}
+.eyebrow{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:.68rem; font-weight:500;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--ink-3)}
+.sub{color:var(--ink-2); max-width:68ch}
+a{color:var(--accent-ink)}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:3px}
+
+.mast{display:flex; flex-direction:column; gap:12px; border-bottom:1px solid var(--line); padding-bottom:26px}
+.mast-row{display:flex; gap:20px; align-items:flex-start; flex-wrap:wrap; justify-content:space-between}
+.build{font-family:"IBM Plex Mono",monospace; font-size:.72rem; color:var(--ink-3);
+  border:1px solid var(--line); border-radius:4px; padding:6px 10px; white-space:nowrap}
+
+.figures{display:grid; grid-template-columns:repeat(auto-fit,minmax(158px,1fr)); gap:1px;
+  background:var(--line-soft); border:1px solid var(--line-soft)}
+.fig{background:var(--surface); padding:16px 18px; display:flex; flex-direction:column; gap:3px}
+.fig-v{font-size:1.75rem; font-weight:600; line-height:1.05; font-variant-numeric:tabular-nums; letter-spacing:-.02em}
+.fig-k{font-size:.78rem; color:var(--ink-2)}
+.fig-note{font-size:.72rem; color:var(--ink-3)}
+.fig.lead .fig-v{color:var(--accent-ink)}
+
+.panel{background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:22px}
+.panel-head{display:flex; justify-content:space-between; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:4px}
+
+.bars{display:flex; flex-direction:column; gap:11px; margin-top:16px}
+.bar-row{display:grid; grid-template-columns:minmax(104px,auto) 1fr minmax(96px,auto); gap:14px; align-items:center}
+.bar-label{font-size:.83rem; display:flex; align-items:center; gap:7px}
+.dot{width:9px; height:9px; border-radius:2px; flex:none}
+.bar-track{height:11px; background:var(--bar-track); border-radius:0 3px 3px 0; overflow:hidden}
+.bar-fill{height:100%; border-radius:0 3px 3px 0; min-width:2px}
+.bar-val{font-family:"IBM Plex Mono",monospace; font-size:.8rem; font-variant-numeric:tabular-nums; text-align:right; color:var(--ink-2)}
+.bar-val b{color:var(--ink); font-weight:600}
+
+.filters{display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end}
+.field{display:flex; flex-direction:column; gap:5px}
+.field label{font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3); font-family:"IBM Plex Mono",monospace}
+input[type="search"],select{font:inherit; font-size:.88rem; color:var(--ink); background:var(--surface);
+  border:1px solid var(--line); border-radius:4px; padding:7px 10px; min-height:36px}
+input[type="search"]{min-width:min(240px,100%)}
+.count-line{font-size:.82rem; color:var(--ink-2); font-variant-numeric:tabular-nums}
+
+.tablewrap{overflow-x:auto; border:1px solid var(--line); border-radius:6px; background:var(--surface)}
+table{border-collapse:collapse; width:100%; min-width:760px}
+thead th{position:sticky; top:0; z-index:2; background:var(--surface-2); text-align:left;
+  font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-3);
+  font-family:"IBM Plex Mono",monospace; font-weight:500;
+  padding:10px 14px; border-bottom:1px solid var(--line); white-space:nowrap}
+th.r,td.r{text-align:right}
+tbody tr{border-bottom:1px solid var(--line-soft); cursor:pointer}
+tbody tr:last-child{border-bottom:0}
+tbody tr:hover{background:var(--surface-2)}
+tbody tr[aria-selected="true"]{background:var(--accent-soft)}
+td{padding:9px 14px; font-size:.87rem; vertical-align:middle}
+td.name{font-weight:500}
+td.num{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; color:var(--ink-2)}
+td.num b{color:var(--ink); font-weight:500}
+.zero{color:var(--ink-3)}
+.chev{color:var(--ink-3); font-size:.8rem}
+
+.pill{display:inline-flex; align-items:center; gap:5px; font-size:.7rem; font-weight:500;
+  padding:2px 7px; border-radius:3px; white-space:nowrap;
+  font-family:"IBM Plex Mono",monospace; letter-spacing:.02em}
+.pill.good{background:var(--good-bg); color:var(--good)}
+.pill.warn{background:var(--warn-bg); color:var(--warn-ink)}
+.pill.crit{background:var(--crit-bg); color:var(--crit)}
+.srcs{display:flex; gap:4px; flex-wrap:wrap}
+.src{font-family:"IBM Plex Mono",monospace; font-size:.66rem; color:var(--ink-2);
+  border:1px solid var(--line); border-radius:3px; padding:1px 5px; white-space:nowrap}
+.more{display:flex; justify-content:center; padding:14px}
+button{font:inherit; font-size:.85rem; color:var(--ink); background:var(--surface);
+  border:1px solid var(--line); border-radius:4px; padding:8px 16px; cursor:pointer; min-height:36px}
+button:hover{background:var(--surface-2)}
+
+/* ---------------- drawer ---------------- */
+.scrim{position:fixed; inset:0; background:var(--scrim); opacity:0; pointer-events:none;
+  transition:opacity .18s ease; z-index:40}
+.scrim.open{opacity:1; pointer-events:auto}
+.drawer{
+  position:fixed; top:0; right:0; height:100dvh; width:min(560px,100%);
+  background:var(--surface); border-left:1px solid var(--line); box-shadow:var(--drawer-shadow);
+  transform:translateX(100%); transition:transform .2s ease; z-index:50;
+  display:flex; flex-direction:column; overscroll-behavior:contain;
+}
+.drawer.open{transform:translateX(0)}
+.drawer-head{padding:18px 22px 14px; border-bottom:1px solid var(--line); display:flex;
+  justify-content:space-between; align-items:flex-start; gap:12px; flex:none}
+.drawer-title{display:flex; flex-direction:column; gap:6px; min-width:0}
+.drawer-title h2{font-size:1.25rem; word-break:break-word}
+.closex{border:1px solid var(--line); background:var(--surface); border-radius:4px;
+  width:34px; height:34px; min-height:34px; padding:0; font-size:1rem; line-height:1; flex:none; color:var(--ink-2)}
+.drawer-body{padding:18px 22px 40px; overflow-y:auto; display:flex; flex-direction:column; gap:22px; flex:1}
+/* The body is a column flex container that overflows, so its children are
+   shrinkable by default and the browser crushes them - the facts strip
+   collapsed from 59px to 2px. Children size to their content, always. */
+.drawer-body > *{flex:0 0 auto}
+
+.facts{display:grid; grid-template-columns:repeat(auto-fit,minmax(118px,1fr)); gap:1px;
+  background:var(--line-soft); border:1px solid var(--line-soft); border-radius:4px; overflow:hidden}
+.fact{background:var(--surface); padding:10px 12px; display:flex; flex-direction:column; gap:2px}
+.fact dt{font-size:.64rem; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); font-family:"IBM Plex Mono",monospace}
+.fact dd{margin:0; font-size:.9rem; font-variant-numeric:tabular-nums}
+
+.polrow{display:flex; gap:8px; flex-wrap:wrap}
+.polbtn{border-radius:4px; padding:7px 15px; font-size:.84rem}
+.polbtn[aria-pressed="true"][data-pol="verified"]{background:var(--good); border-color:var(--good); color:#fff}
+.polbtn[aria-pressed="true"][data-pol="suspect"]{background:var(--warn); border-color:var(--warn); color:#231a05}
+.polbtn[aria-pressed="true"][data-pol="excluded"]{background:var(--crit); border-color:var(--crit); color:#fff}
+.pol-tag{font-family:"IBM Plex Mono",monospace; font-size:.68rem; padding:1px 6px; border-radius:3px; border:1px solid var(--line); color:var(--ink-3)}
+.pol-tag[data-p="excluded"]{color:var(--crit); border-color:var(--crit)}
+.pol-tag[data-p="suspect"]{color:var(--warn-ink); border-color:var(--warn)}
+.pol-tag[data-p="verified"]{color:var(--good); border-color:var(--good)}
+
+.sect{display:flex; flex-direction:column; gap:9px}
+.sect-head{display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap}
+.sect-head .n{font-family:"IBM Plex Mono",monospace; font-size:.74rem; color:var(--ink-3); font-variant-numeric:tabular-nums}
+.rulefilter{font-size:.8rem; padding:5px 8px; min-height:30px; width:100%}
+.rulelist{display:flex; flex-direction:column; gap:3px; max-height:340px; overflow-y:auto;
+  border:1px solid var(--line-soft); border-radius:4px; padding:6px; background:var(--paper); overscroll-behavior:contain}
+.rule{display:flex; justify-content:space-between; align-items:baseline; gap:10px;
+  font-family:"IBM Plex Mono",monospace; font-size:.775rem; color:var(--ink);
+  background:var(--surface); border-radius:3px; padding:5px 8px}
+.rule .v{word-break:break-all; min-width:0}
+.rule .meta{color:var(--ink-3); font-size:.68rem; white-space:nowrap; flex:none}
+.rule .k{color:var(--ink-3)}
+.empty{color:var(--ink-3); font-size:.85rem; font-style:italic; padding:4px 2px}
+.showall{align-self:flex-start; font-size:.78rem; padding:5px 11px; min-height:30px}
+
+.note{border-left:2px solid var(--accent); background:var(--accent-soft);
+  padding:13px 16px; border-radius:0 4px 4px 0; font-size:.87rem; color:var(--ink-2)}
+.note b{color:var(--ink)}
+.note.warn{border-left-color:var(--warn); background:var(--warn-bg)}
+.list{display:flex; flex-direction:column; gap:12px; margin-top:14px}
+.li{display:flex; flex-direction:column; gap:3px; padding-bottom:12px; border-bottom:1px solid var(--line-soft)}
+.li:last-child{border-bottom:0; padding-bottom:0}
+.li-h{font-family:"IBM Plex Mono",monospace; font-size:.82rem; color:var(--ink)}
+.li-b{font-size:.83rem; color:var(--ink-2)}
+.detail-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:20px}
+.tiers{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1px;
+  background:var(--line-soft); border:1px solid var(--line-soft); margin-top:20px}
+.tier{background:var(--surface); padding:16px 18px; display:flex; flex-direction:column; gap:9px}
+.tier-h{display:flex; align-items:center; gap:10px}
+.tier-k{font-family:"IBM Plex Mono",monospace; font-weight:600; font-size:.85rem;
+  width:26px; height:26px; display:grid; place-items:center; border-radius:4px; flex:none;
+  background:var(--accent-soft); color:var(--accent-ink)}
+.tier p{font-size:.84rem; color:var(--ink-2)}
+.tier em{font-style:normal; color:var(--ink); font-weight:500}
+.tier-n{font-family:"IBM Plex Mono",monospace; font-size:.74rem; color:var(--ink-3); margin-top:auto}
+.tier-n b{color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums}
+td.rule-v{font-family:"IBM Plex Mono",monospace; font-size:.8rem; word-break:break-all; max-width:460px}
+td.rule-v .k{color:var(--ink-3)}
+.tierbadge{font-family:"IBM Plex Mono",monospace; font-size:.7rem; font-weight:600;
+  padding:1px 6px; border-radius:3px; background:var(--accent-soft); color:var(--accent-ink)}
+footer{border-top:1px solid var(--line); padding-top:20px; font-size:.8rem; color:var(--ink-3)}
+
+@media (max-width:640px){
+  .bar-row{grid-template-columns:1fr; gap:5px}
+  .bar-val{text-align:left}
+  body{padding-block:20px 48px}
+  .drawer-body{padding:16px 16px 40px}
+  .drawer-head{padding:16px}
+}
+@media (prefers-reduced-motion:reduce){.drawer,.scrim{transition:none}}
+</style>
+
+<div class="wrap">
+  <header class="mast">
+    <div class="mast-row">
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <span class="eyebrow">NGFW &middot; application signature corpus</span>
+        <h1>Signature Register</h1>
+        <p class="sub">An inventory of collected application signatures: every application identity in the corpus, every match rule behind it, and which upstream it was harvested from. Two builds are compiled from the same corpus &mdash; the difference between them is a licence decision, not a technical one.</p>
+      </div>
+      <div class="build mono" id="buildstamp">&mdash;</div>
+    </div>
+  </header>
+
+  <section class="figures" id="figures"></section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>The licence gate</h2><span class="eyebrow">applications by source licence</span></div>
+    <p class="sub" style="font-size:.88rem">The full corpus covers every application below. A build that cannot carry copyleft data keeps only the permissive band &mdash; the compiler filters on the licence each rule was harvested under, so the same corpus yields a smaller, redistributable set under <span class="mono">--max-license permissive</span>.</p>
+    <div class="bars" id="licbars"></div>
+    <div class="note" style="margin-top:18px" id="licnote"></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>Where the applications come from</h2><span class="eyebrow">apps contributed per corpus</span></div>
+    <p class="sub" style="font-size:.88rem">Counts overlap: an application corroborated by several corpora is counted under each. <span id="multiline"></span></p>
+    <div class="bars" id="srcbars"></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>Evidence on the wire</h2><span class="eyebrow">match rules by kind</span></div>
+    <p class="sub" style="font-size:.88rem">Rules, not applications &mdash; one application usually carries many. Tier B names dominate and are the band Encrypted Client Hello will erode; tier A payload prefixes read the protocol on the wire and survive it; tier C prefixes say who owns an address, never which application is using it.</p>
+    <div class="bars" id="rulebars"></div>
+    <div class="tiers">
+      <div class="tier" data-t="A">
+        <div class="tier-h"><span class="tier-k">A</span><h3>Payload bytes</h3></div>
+        <p>The first four bytes of the flow, matched against a known protocol magic
+           &mdash; <span class="mono">4e58442d</span> is <span class="mono">"NXD-"</span>, NoMachine.
+           Reads what is actually on the wire, so it keeps working when names are
+           encrypted. But it identifies a <em>protocol</em>, not usually a product:
+           it tells you this is FTP, not which application opened it.</p>
+        <p class="tier-n"><b id="tA">&mdash;</b> rules &middot; <b id="aA">&mdash;</b> applications</p>
+      </div>
+      <div class="tier" data-t="B">
+        <div class="tier-h"><span class="tier-k">B</span><h3>Vendor-owned names</h3></div>
+        <p>TLS SNI, HTTP Host and DNS names the vendor owns &mdash;
+           <span class="mono">youtu.be</span>, <span class="mono">ytimg.com</span>.
+           This is where application identity actually lives, and where nearly the
+           whole corpus sits. It is also the band Encrypted Client Hello removes:
+           when the name is no longer in the clear, these stop resolving.</p>
+        <p class="tier-n"><b id="tB">&mdash;</b> rules &middot; <b id="aB">&mdash;</b> applications</p>
+      </div>
+      <div class="tier" data-t="C">
+        <div class="tier-h"><span class="tier-k">C</span><h3>IP prefixes</h3></div>
+        <p>Address ranges their operator publishes. This says who owns the address,
+           never which application is using it &mdash; behind a CDN thousands of unrelated
+           services share one prefix. Useful to corroborate or narrow, never to decide
+           alone, which is why these carry the lowest confidence in the corpus.</p>
+        <p class="tier-n"><b id="tC">&mdash;</b> rules &middot; <b id="aC">&mdash;</b> applications</p>
+      </div>
+    </div>
+    <div class="note warn" style="margin-top:18px" id="echnote"></div>
+  </section>
+
+  <section class="panel" id="register">
+    <div class="panel-head"><h2>All applications</h2><span class="count-line" id="countline"></span></div>
+    <p class="sub" style="font-size:.86rem; margin-top:6px">Select any row to open its full record &mdash; every collected rule, its confidence and the licence it was harvested under.</p>
+    <div class="filters" style="margin:16px 0 14px">
+      <div class="field"><label for="q">Search</label><input type="search" id="q" placeholder="name or domain&hellip;" autocomplete="off"></div>
+      <div class="field"><label for="flic">Licence</label>
+        <select id="flic"><option value="">All licences</option>
+          <option value="0">Permissive &mdash; shippable</option>
+          <option value="1">LGPL &mdash; relink obligation</option>
+          <option value="2">GPL &mdash; copyleft</option></select></div>
+      <div class="field"><label for="fsrc">Source</label><select id="fsrc"><option value="">All sources</option></select></div>
+      <div class="field"><label for="fev">Evidence</label>
+        <select id="fev"><option value="">Any evidence</option>
+          <option value="p">Has payload rule (tier A)</option>
+          <option value="d">Has name rule (tier B)</option>
+          <option value="c">Has IP prefix (tier C)</option>
+          <option value="multi">Corroborated by 2+ sources</option>
+          <option value="none">No rules at all</option></select></div>
+      <div class="field"><label for="fpol">Review</label>
+        <select id="fpol"><option value="">Any review state</option>
+          <option value="set">Reviewed</option><option value="verified">Verified</option>
+          <option value="suspect">Suspect</option><option value="excluded">Excluded</option>
+          <option value="unset">Unreviewed</option></select></div>
+      <div class="field"><label for="fsort">Sort</label>
+        <select id="fsort"><option value="rules">Most rules</option><option value="name">Name A&ndash;Z</option>
+          <option value="src">Most sources</option><option value="dom">Most name rules</option></select></div>
+    </div>
+    <div class="tablewrap">
+      <table><thead><tr>
+        <th>Application</th><th>Licence</th><th>Sources</th>
+        <th class="r">Names</th><th class="r">Prefixes</th><th class="r">Payload</th><th>Review</th><th></th>
+      </tr></thead><tbody id="rows"></tbody></table>
+      <div class="more" id="morewrap"><button id="more" type="button">Show more</button></div>
+    </div>
+  </section>
+
+  <section class="panel" id="allsigs">
+    <div class="panel-head"><h2>All signatures</h2><span class="count-line" id="sigcount"></span></div>
+    <p class="sub" style="font-size:.86rem; margin-top:6px">Every rule in the corpus as one flat list, rather than one application at a time. The same rows are in <span class="mono">build/signatures.csv</span> if you would rather grep or open them in a spreadsheet.</p>
+    <div class="filters" style="margin:16px 0 14px">
+      <div class="field"><label for="sq">Search</label><input type="search" id="sq" placeholder="application or rule value&hellip;" autocomplete="off"></div>
+      <div class="field"><label for="stype">Rule kind</label>
+        <select id="stype"><option value="">All kinds</option>
+          <option value="name">Name (SNI / Host / DNS)</option>
+          <option value="ip">IP prefix</option>
+          <option value="payload">Payload bytes</option></select></div>
+      <div class="field"><label for="stier">Tier</label>
+        <select id="stier"><option value="">All tiers</option>
+          <option value="0">A &mdash; payload bytes</option>
+          <option value="1">B &mdash; vendor names</option>
+          <option value="2">C &mdash; IP prefixes</option></select></div>
+      <div class="field"><label for="slic">Licence</label>
+        <select id="slic"><option value="">All licences</option>
+          <option value="0">Permissive</option><option value="1">LGPL-3.0</option>
+          <option value="2">GPL-2.0</option></select></div>
+    </div>
+    <div class="tablewrap">
+      <table><thead><tr>
+        <th>Application</th><th>Kind</th><th>Rule</th><th>Tier</th>
+        <th class="r">Conf</th><th>Licence</th>
+      </tr></thead><tbody id="sigrows"></tbody></table>
+      <div class="more" id="sigmorewrap"><button id="sigmore" type="button">Show more</button></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><h2>Curation</h2><span class="eyebrow">identity decisions, human-reviewed</span></div>
+    <p class="sub" style="font-size:.88rem">An application count means nothing if the identities behind it are not distinct. Separator variants (<span class="mono">epic-games</span> / <span class="mono">epicgames</span>) merge automatically on a punctuation-stripped key &mdash; exact equality modulo separators, never similarity. Everything else is decided by hand and recorded here.</p>
+    <div class="detail-grid" style="margin-top:18px">
+      <div><span class="eyebrow">Aliases &mdash; one service, two ids</span><div class="list" id="aliases"></div></div>
+      <div><span class="eyebrow">Drops &mdash; not an application</span><div class="list" id="drops"></div></div>
+    </div>
+  </section>
+
+  <footer>Compiled by <span class="mono">tools/sigc.py</span> from vendored corpora at pinned commits; audited by <span class="mono">tools/dup_audit.py</span>. Rule counts are measured from the compiled database, not claimed by upstream. Review marks are corpus triage, recorded against the signature, not against traffic.</footer>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="dname" hidden>
+  <div class="drawer-head">
+    <div class="drawer-title">
+      <span class="eyebrow">application record</span>
+      <h2 id="dname" tabindex="-1">&mdash;</h2>
+      <div id="dpills" class="srcs"></div>
+    </div>
+    <button class="closex" id="closex" type="button" aria-label="Close record">&times;</button>
+  </div>
+  <div class="drawer-body" id="dbody"></div>
+</aside>
+
+<script id="corpus" type="application/json">__DATA__</script>
+<script>
+(function(){
+  "use strict";
+  var D; try { D = JSON.parse(document.getElementById("corpus").textContent); } catch(e){ return; }
+  var APPS = D.apps, T = D.totals, LICN = D.lic;
+  var LIC = [
+    {k:0,name:"Permissive",note:"Apache-2.0 / MIT / BSD / public data",cls:"good",col:"var(--good)"},
+    {k:1,name:"LGPL-3.0",note:"dynamic linking, relink obligation",cls:"warn",col:"var(--warn)"},
+    {k:2,name:"GPL-2.0",note:"copyleft \u2014 not shippable in a proprietary build",cls:"crit",col:"var(--crit)"}
+  ];
+  var licById={0:LIC[0],1:LIC[1],2:LIC[2]};
+  var TIER=["A","B","C","D"];
+  function fmt(n){ return n.toLocaleString("en-US"); }
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+  function nrules(a){ return a.D.length + a.C.length + a.P.length; }
+
+  /* ---- headline ---- */
+  var perm=T.byLicense["0"]||0;
+  document.getElementById("figures").innerHTML=[
+    {v:fmt(T.apps),k:"applications detected",n:"full corpus, all licences"},
+    {v:fmt(perm),k:"shippable applications",n:"permissive build only",lead:true},
+    {v:fmt(T.domains+T.cidrs+T.payloads),k:"match rules",n:fmt(T.domains)+" name \u00b7 "+fmt(T.cidrs)+" prefix \u00b7 "+fmt(T.payloads)+" payload"},
+    {v:String(Object.keys(T.bySource).length),k:"contributing corpora",n:fmt(T.multiSource)+" apps corroborated by 2+"}
+  ].map(function(f){ return '<div class="fig'+(f.lead?" lead":"")+'"><span class="fig-v">'+f.v+
+    '</span><span class="fig-k">'+f.k+'</span><span class="fig-note">'+f.n+'</span></div>'; }).join("");
+  document.getElementById("buildstamp").textContent="sigdb v3 \u00b7 "+fmt(T.apps)+" apps \u00b7 "+fmt(T.domains+T.cidrs+T.payloads)+" rules";
+
+  function bars(el,rows,total){
+    var max=rows.reduce(function(m,r){return Math.max(m,r.v);},0)||1;
+    el.innerHTML=rows.map(function(r){
+      return '<div class="bar-row"><span class="bar-label">'+(r.col?'<span class="dot" style="background:'+r.col+'"></span>':"")+esc(r.label)+'</span>'+
+        '<div class="bar-track"><div class="bar-fill" style="width:'+(r.v/max*100).toFixed(1)+'%;background:'+(r.col||"var(--accent)")+'"></div></div>'+
+        '<span class="bar-val"><b>'+fmt(r.v)+'</b>'+(total?" \u00b7 "+(r.v/total*100).toFixed(1)+"%":"")+'</span>'+
+        (r.note?'<span></span><span class="fig-note" style="grid-column:2/4">'+esc(r.note)+'</span>':"")+'</div>';
+    }).join("");
+  }
+  bars(document.getElementById("licbars"),
+    LIC.map(function(l){return {label:l.name,v:T.byLicense[String(l.k)]||0,col:l.col,note:l.note};}), T.apps);
+  document.getElementById("licnote").innerHTML="<b>"+fmt(perm)+" of "+fmt(T.apps)+
+    " applications survive a permissive-only build.</b> The "+fmt(T.apps-perm)+
+    " excluded are research-tier: usable for analysis, not for shipping. Closing that gap means deriving signatures ourselves \u2014 certificate transparency logs, operator IP feeds \u2014 not mining more corpora.";
+  var srcRows=Object.keys(T.bySource).map(function(k){return {label:k,v:T.bySource[k]};}).sort(function(a,b){return b.v-a.v;});
+  bars(document.getElementById("srcbars"),srcRows,null);
+  document.getElementById("multiline").textContent=fmt(T.multiSource)+" applications are backed by more than one corpus, which is corroboration rather than duplication.";
+  bars(document.getElementById("rulebars"),[
+    {label:"IP prefixes",v:T.cidrs,note:"tier C \u00b7 IPv4 + IPv6, from operator feeds"},
+    {label:"Names",v:T.domains,note:"tier B \u00b7 SNI, HTTP Host, DNS suffixes"},
+    {label:"Payload prefixes",v:T.payloads,note:"tier A \u00b7 4 bytes at flow start"}],null);
+
+  /* ---- review ---- */
+  var REVIEW_STATES=["verified","suspect","excluded"], review={}, store=null;
+  try{ var r=localStorage.getItem("ngfw.review"); if(r) review=JSON.parse(r)||{}; }catch(e){}
+  function saveReview(){
+    try{ localStorage.setItem("ngfw.review",JSON.stringify(review)); }catch(e){}
+    if(store) store.set({map:review}).catch(function(){});
+  }
+  if(window.claude && typeof window.claude.use==="function"){
+    window.claude.use("db").then(function(db){
+      if(!db) return;
+      store=db.doc("review/marks");
+      store.onSnapshot(function(doc){
+        var m=doc&&doc.data&&doc.data.map;
+        if(m&&typeof m==="object"){ review=m; render(); if(cur) fillDrawer(cur); }
+      });
+    }).catch(function(){});
+  }
+
+  /* ---- register ---- */
+  var rowsEl=document.getElementById("rows"), qEl=document.getElementById("q"),
+      licEl=document.getElementById("flic"), srcEl=document.getElementById("fsrc"),
+      evEl=document.getElementById("fev"), polEl=document.getElementById("fpol"),
+      sortEl=document.getElementById("fsort"), countEl=document.getElementById("countline"),
+      moreEl=document.getElementById("more"), moreWrap=document.getElementById("morewrap");
+  srcRows.forEach(function(r){ var o=document.createElement("option"); o.value=r.label; o.textContent=r.label; srcEl.appendChild(o); });
+
+  var PAGE=80, shown=PAGE, filtered=[], cur=null, lastRow=null;
+
+  function apply(){
+    var q=qEl.value.trim().toLowerCase(), lic=licEl.value, src=srcEl.value,
+        ev=evEl.value, pf=polEl.value;
+    filtered=APPS.filter(function(a){
+      if(lic!==""&&a.l!==+lic) return false;
+      if(src&&a.s.indexOf(src)===-1) return false;
+      if(ev==="p"&&!a.P.length) return false;
+      if(ev==="d"&&!a.D.length) return false;
+      if(ev==="c"&&!a.C.length) return false;
+      if(ev==="multi"&&a.s.length<2) return false;
+      if(ev==="none"&&nrules(a)!==0) return false;
+      var p=review[a.n];
+      if(pf==="set"&&!p) return false;
+      if(pf==="unset"&&p) return false;
+      if((pf==="verified"||pf==="suspect"||pf==="excluded")&&p!==pf) return false;
+      if(q){
+        if(a.n.toLowerCase().indexOf(q)!==-1) return true;
+        for(var i=0;i<a.D.length;i++){ if(a.D[i][0].indexOf(q)!==-1) return true; }
+        return false;
+      }
+      return true;
+    });
+    var s=sortEl.value;
+    filtered.sort(function(x,y){
+      if(s==="name") return x.n.localeCompare(y.n);
+      if(s==="src") return y.s.length-x.s.length||nrules(y)-nrules(x);
+      if(s==="dom") return y.D.length-x.D.length;
+      return nrules(y)-nrules(x)||x.n.localeCompare(y.n);
+    });
+    shown=PAGE; render();
+  }
+
+  function render(){
+    rowsEl.innerHTML=filtered.slice(0,shown).map(function(a,i){
+      var L=licById[a.l], p=review[a.n];
+      return '<tr tabindex="0" role="button" data-i="'+i+'"'+(cur&&cur.n===a.n?' aria-selected="true"':"")+'>'+
+        '<td class="name">'+esc(a.n)+'</td>'+
+        '<td><span class="pill '+L.cls+'">'+L.name+'</span></td>'+
+        '<td><span class="srcs">'+a.s.map(function(x){return '<span class="src">'+esc(x)+'</span>';}).join("")+'</span></td>'+
+        '<td class="num r">'+(a.D.length?'<b>'+fmt(a.D.length)+'</b>':'<span class="zero">0</span>')+'</td>'+
+        '<td class="num r">'+(a.C.length?'<b>'+fmt(a.C.length)+'</b>':'<span class="zero">0</span>')+'</td>'+
+        '<td class="num r">'+(a.P.length?'<b>'+fmt(a.P.length)+'</b>':'<span class="zero">0</span>')+'</td>'+
+        '<td>'+(p?'<span class="pol-tag" data-p="'+p+'">'+p+'</span>':'<span class="zero mono" style="font-size:.72rem">\u2014</span>')+'</td>'+
+        '<td class="chev">\u203a</td></tr>';
+    }).join("");
+    countEl.textContent=fmt(filtered.length)+" of "+fmt(APPS.length)+" applications"+
+      (filtered.length>shown?" \u00b7 showing "+fmt(shown):"");
+    moreWrap.hidden=filtered.length<=shown;
+  }
+
+  /* ---- drawer ---- */
+  var drawer=document.getElementById("drawer"), scrim=document.getElementById("scrim"),
+      dbody=document.getElementById("dbody"), dname=document.getElementById("dname"),
+      dpills=document.getElementById("dpills");
+  var CAP=300;
+
+  function ruleSection(id,title,kind,rules,renderer){
+    if(!rules.length) return '<div class="sect"><div class="sect-head"><h3>'+title+'</h3>'+
+      '<span class="n">0</span></div><p class="empty">'+kind+'</p></div>';
+    return '<div class="sect" data-sect="'+id+'"><div class="sect-head"><h3>'+title+'</h3>'+
+      '<span class="n">'+fmt(rules.length)+' rule'+(rules.length===1?"":"s")+'</span></div>'+
+      (rules.length>12?'<input type="search" class="rulefilter" data-for="'+id+'" placeholder="filter '+fmt(rules.length)+' rules&hellip;" autocomplete="off">':"")+
+      '<div class="rulelist" id="list-'+id+'"></div>'+
+      (rules.length>CAP?'<button type="button" class="showall" data-all="'+id+'">Show all '+fmt(rules.length)+'</button>':"")+
+      '</div>';
+  }
+
+  function domRow(r){
+    return '<div class="rule"><span class="v"><span class="k">'+(r[1]?"= ":"~ ")+'</span>'+esc(r[0])+'</span>'+
+      '<span class="meta">'+(r[1]?"exact":"suffix")+' \u00b7 conf '+r[2]+' \u00b7 '+esc(LICN[r[3]])+'</span></div>';
+  }
+  function cidrRow(r){
+    return '<div class="rule"><span class="v"><span class="k">net </span>'+esc(r[0])+'</span>'+
+      '<span class="meta">IPv'+(r[1]===6?"6":"4")+' \u00b7 conf '+r[2]+' \u00b7 '+esc(LICN[r[3]])+'</span></div>';
+  }
+  function payRow(r){
+    var ascii=(r[0].match(/../g)||[]).map(function(b){
+      var v=parseInt(b,16); return (v>=32&&v<127)?String.fromCharCode(v):"."; }).join("");
+    var wild=(r[1].match(/../g)||[]).filter(function(m){return m==="00";}).length;
+    return '<div class="rule"><span class="v"><span class="k">bytes </span>'+esc(r[0])+
+      '  <span class="k">\u201c'+esc(ascii)+'\u201d</span></span>'+
+      '<span class="meta">'+(wild?wild+" wildcard \u00b7 ":"")+'conf '+r[2]+' \u00b7 '+esc(LICN[r[3]])+'</span></div>';
+  }
+
+  var RENDERERS={dom:domRow, cidr:cidrRow, pay:payRow};
+  var SETS={};
+
+  function paint(id,limit,filterText){
+    var el=document.getElementById("list-"+id); if(!el) return;
+    var set=SETS[id], rows=set.rows, fn=RENDERERS[set.kind];
+    if(filterText){
+      var q=filterText.toLowerCase();
+      rows=rows.filter(function(r){ return r[0].toLowerCase().indexOf(q)!==-1; });
+    }
+    var slice=rows.slice(0,limit);
+    el.innerHTML=slice.length?slice.map(fn).join(""):'<p class="empty">No rule matches that filter.</p>';
+    var btn=document.querySelector('[data-all="'+id+'"]');
+    if(btn) btn.hidden = rows.length<=limit;
+    if(btn && rows.length>limit) btn.textContent="Show all "+fmt(rows.length);
+  }
+
+  function fillDrawer(a){
+    cur=a;
+    var L=licById[a.l], p=review[a.n]||"";
+    dname.textContent=a.n;
+    dpills.innerHTML='<span class="pill '+L.cls+'">'+L.name+'</span>'+
+      (p?'<span class="pol-tag" data-p="'+p+'">'+p+'</span>':"")+
+      a.s.map(function(x){return '<span class="src">'+esc(x)+'</span>';}).join("");
+
+    SETS={dom:{rows:a.D,kind:"dom"}, cidr:{rows:a.C,kind:"cidr"}, pay:{rows:a.P,kind:"pay"}};
+
+    dbody.innerHTML=
+      '<dl class="facts">'+
+        '<div class="fact"><dt>Total rules</dt><dd>'+fmt(nrules(a))+'</dd></div>'+
+        '<div class="fact"><dt>Best tier</dt><dd>'+(a.t===null?"\u2014":TIER[a.t])+'</dd></div>'+
+        '<div class="fact"><dt>Confidence</dt><dd>'+(a.cf||"\u2014")+'</dd></div>'+
+        '<div class="fact"><dt>Sources</dt><dd>'+a.s.length+'</dd></div>'+
+        '<div class="fact"><dt>Shippable</dt><dd>'+(a.l===0?"yes":"research only")+'</dd></div>'+
+      '</dl>'+
+      '<div class="sect"><div class="sect-head"><h3>Collection review</h3>'+
+        '<span class="n">'+(p?esc(p):"unreviewed")+'</span></div>'+
+        '<div class="polrow">'+REVIEW_STATES.map(function(x){
+          return '<button type="button" class="polbtn" data-pol="'+x+'" aria-pressed="'+(p===x)+'">'+x+'</button>'; }).join("")+
+        (p?'<button type="button" class="polbtn" data-pol="">clear</button>':"")+'</div>'+
+        '<p class="fig-note">Triage of the signature itself \u2014 whether the collected rules look sound. Nothing here acts on traffic.</p></div>'+
+      ruleSection("dom","Name rules \u2014 tier B","No name rules. This application cannot be identified from SNI, HTTP Host or DNS.",a.D)+
+      ruleSection("cidr","IP prefixes \u2014 tier C","No IP prefixes.",a.C)+
+      ruleSection("pay","Payload prefixes \u2014 tier A","No payload rule \u2014 nothing here survives Encrypted Client Hello.",a.P);
+
+    paint("dom",CAP,""); paint("cidr",CAP,""); paint("pay",CAP,"");
+
+    dbody.querySelectorAll("[data-pol]").forEach(function(btn){
+      btn.addEventListener("click",function(){
+        var v=btn.getAttribute("data-pol");
+        if(v) review[a.n]=v; else delete review[a.n];
+        saveReview(); fillDrawer(a); render();
+      });
+    });
+    dbody.querySelectorAll(".rulefilter").forEach(function(inp){
+      inp.addEventListener("input",function(){ paint(inp.dataset.for,CAP,inp.value.trim()); });
+    });
+    dbody.querySelectorAll("[data-all]").forEach(function(btn){
+      btn.addEventListener("click",function(){
+        var id=btn.dataset.all;
+        var f=dbody.querySelector('.rulefilter[data-for="'+id+'"]');
+        paint(id,Infinity,f?f.value.trim():"");
+        btn.hidden=true;
+      });
+    });
+    render();
+  }
+
+  function openDrawer(a,row){
+    lastRow=row||null;
+    drawer.hidden=false;
+    fillDrawer(a);
+    // Force a reflow so the transition has a start value, then open. Using
+    // requestAnimationFrame here would strand the drawer off-screen whenever the
+    // tab is not rendering (a background tab never fires rAF).
+    void drawer.offsetWidth;
+    drawer.classList.add("open");
+    scrim.classList.add("open");
+    document.body.classList.add("locked");
+    dname.focus({preventScroll:true});
+  }
+  function closeDrawer(){
+    drawer.classList.remove("open"); scrim.classList.remove("open");
+    document.body.classList.remove("locked");
+    setTimeout(function(){ drawer.hidden=true; },200);
+    if(lastRow && document.body.contains(lastRow)) lastRow.focus({preventScroll:true});
+    cur=null; render();
+  }
+  document.getElementById("closex").addEventListener("click",closeDrawer);
+  scrim.addEventListener("click",closeDrawer);
+  document.addEventListener("keydown",function(e){
+    if(e.key==="Escape" && !drawer.hidden) closeDrawer();
+  });
+
+  rowsEl.addEventListener("click",function(e){
+    var tr=e.target.closest("tr"); if(!tr) return;
+    openDrawer(filtered[+tr.dataset.i],tr);
+  });
+  rowsEl.addEventListener("keydown",function(e){
+    if(e.key!=="Enter"&&e.key!==" ") return;
+    var tr=e.target.closest("tr"); if(!tr) return;
+    e.preventDefault(); openDrawer(filtered[+tr.dataset.i],tr);
+  });
+  moreEl.addEventListener("click",function(){ shown+=PAGE*2; render(); });
+  [qEl,licEl,srcEl,evEl,polEl,sortEl].forEach(function(el){
+    el.addEventListener("input",apply); el.addEventListener("change",apply);
+  });
+
+  /* ---- tier legend counts ---- */
+  var tierRules=[0,0,0,0], tierApps=[{},{},{},{}];
+  APPS.forEach(function(a){
+    a.D.forEach(function(){ tierRules[1]++; tierApps[1][a.n]=1; });
+    a.C.forEach(function(){ tierRules[2]++; tierApps[2][a.n]=1; });
+    a.P.forEach(function(){ tierRules[0]++; tierApps[0][a.n]=1; });
+  });
+  ["A","B","C"].forEach(function(L,i){
+    var t=[0,1,2][i];
+    document.getElementById("t"+L).textContent=fmt(tierRules[t]);
+    document.getElementById("a"+L).textContent=fmt(Object.keys(tierApps[t]).length);
+  });
+  var bOnly=APPS.filter(function(a){ return a.D.length && !a.P.length; }).length;
+  document.getElementById("echnote").innerHTML="<b>"+fmt(bOnly)+
+    " applications rest on tier B alone.</b> They are identified by a name in the clear and have no payload rule behind them, so as Encrypted Client Hello deploys they stop being identifiable. Only "+
+    fmt(Object.keys(tierApps[0]).length)+" applications in the corpus carry tier A evidence today.";
+
+  /* ---- all signatures, flattened ---- */
+  var FLAT=[];
+  APPS.forEach(function(a){
+    a.D.forEach(function(r){ FLAT.push({a:a.n,k:"name",m:r[1]?"exact":"suffix",v:r[0],d:"",t:1,c:r[2],l:r[3]}); });
+    a.C.forEach(function(r){ FLAT.push({a:a.n,k:"ip",m:"ipv"+(r[1]===6?"6":"4"),v:r[0],d:"",t:2,c:r[2],l:r[3]}); });
+    a.P.forEach(function(r){
+      var g=(r[0].match(/../g)||[]).map(function(b){var v=parseInt(b,16);return (v>=32&&v<127)?String.fromCharCode(v):".";}).join("");
+      FLAT.push({a:a.n,k:"payload",m:"prefix4",v:r[0],d:'\u201c'+g+'\u201d',t:0,c:r[2],l:r[3]});
+    });
+  });
+  var KIND={name:"name",ip:"IP prefix",payload:"payload"};
+  var sqEl=document.getElementById("sq"), stypeEl=document.getElementById("stype"),
+      stierEl=document.getElementById("stier"), slicEl=document.getElementById("slic"),
+      sigRows=document.getElementById("sigrows"), sigCount=document.getElementById("sigcount"),
+      sigMore=document.getElementById("sigmore"), sigMoreWrap=document.getElementById("sigmorewrap");
+  var SPAGE=150, sigShown=SPAGE, sigFiltered=FLAT;
+
+  function sigApply(){
+    var q=sqEl.value.trim().toLowerCase(), k=stypeEl.value, t=stierEl.value, l=slicEl.value;
+    sigFiltered=FLAT.filter(function(r){
+      if(k&&r.k!==k) return false;
+      if(t!==""&&r.t!==+t) return false;
+      if(l!==""&&r.l!==+l) return false;
+      if(q&&r.a.toLowerCase().indexOf(q)===-1&&r.v.toLowerCase().indexOf(q)===-1) return false;
+      return true;
+    });
+    sigShown=SPAGE; sigRender();
+  }
+  function sigRender(){
+    sigRows.innerHTML=sigFiltered.slice(0,sigShown).map(function(r){
+      var L=licById[r.l];
+      return '<tr><td class="name">'+esc(r.a)+'</td>'+
+        '<td><span class="src">'+KIND[r.k]+'</span></td>'+
+        '<td class="rule-v"><span class="k">'+esc(r.m)+' </span>'+esc(r.v)+
+          (r.d?' <span class="k">'+esc(r.d)+'</span>':"")+'</td>'+
+        '<td><span class="tierbadge">'+TIER[r.t]+'</span></td>'+
+        '<td class="num r">'+r.c+'</td>'+
+        '<td><span class="pill '+L.cls+'">'+L.name+'</span></td></tr>';
+    }).join("");
+    sigCount.textContent=fmt(sigFiltered.length)+" of "+fmt(FLAT.length)+" signatures"+
+      (sigFiltered.length>sigShown?" \u00b7 showing "+fmt(sigShown):"");
+    sigMoreWrap.hidden=sigFiltered.length<=sigShown;
+  }
+  sigMore.addEventListener("click",function(){ sigShown+=SPAGE*4; sigRender(); });
+  [sqEl,stypeEl,stierEl,slicEl].forEach(function(el){
+    el.addEventListener("input",sigApply); el.addEventListener("change",sigApply);
+  });
+  sigApply();
+
+  /* ---- curation ---- */
+  var C=D.curation||{}, al=C.aliases||{}, dr=C.drops||{};
+  document.getElementById("aliases").innerHTML=Object.keys(al).map(function(k){
+    return '<div class="li"><span class="li-h">'+esc(k)+' \u2192 '+esc(al[k])+'</span></div>'; }).join("")||'<p class="empty">None.</p>';
+  document.getElementById("drops").innerHTML=Object.keys(dr).map(function(k){
+    var v=dr[k];
+    return '<div class="li"><span class="li-h">'+esc(k)+' <span class="src">'+esc(v.source||"")+'</span></span>'+
+      '<span class="li-b">'+esc(v.reason||"")+'</span>'+
+      (v.examples?'<span class="li-b mono" style="font-size:.76rem">'+esc(v.examples.join("  \u00b7  "))+'</span>':"")+'</div>'; }).join("")||'<p class="empty">None.</p>';
+
+  apply();
+})();
+</script>

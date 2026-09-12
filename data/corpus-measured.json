@@ -1,0 +1,61 @@
+{
+  "stats": {
+    "ndpi": {
+      "protocol_ids_total": 495,
+      "named": 494,
+      "protocol_like": 39,
+      "app_like": 455,
+      "dissector_files": 264
+    },
+    "openappid": {
+      "lua_files": 617,
+      "named_lua_detectors": 564,
+      "host_pattern_backed": 1934,
+      "detectable_total": 2343,
+      "appmapping_rows": 3374,
+      "appmapping_flagged": 2494,
+      "registry_names": 3374,
+      "claimed": 2600
+    },
+    "netify": {
+      "apps": 199,
+      "rules_domain": 3374,
+      "rules_cidr": 783,
+      "rules_expr": 26,
+      "rules_total": 4183,
+      "license": "Apache-2.0"
+    },
+    "mmt-dpi": {
+      "protocol_defines": 682
+    },
+    "libprotoident": {
+      "modules_tcp": 284,
+      "modules_udp": 256,
+      "modules_total": 540,
+      "distinct_after_transport_merge": 511
+    },
+    "openappid-registry": {
+      "registry_names": 3374,
+      "flagged_names": 2494,
+      "note": "taxonomy only - no detector; derivation targets"
+    }
+  },
+  "licenses": {
+    "ndpi": "LGPL-3.0",
+    "openappid": "GPL-2.0",
+    "netify": "Apache-2.0",
+    "mmt-dpi": "Apache-2.0",
+    "libprotoident": "LGPL-3.0",
+    "openappid-registry": "GPL-2.0"
+  },
+  "counts": {
+    "ndpi": 454,
+    "openappid": 2339,
+    "netify": 198,
+    "mmt-dpi": 680,
+    "libprotoident": 511
+  },
+  "union_all": 3495,
+  "union_permissive": 823,
+  "target": 3000
+}

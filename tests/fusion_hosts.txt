@@ -1,0 +1,10 @@
+# IP only, no SNI: tier C provisional attribution
+@3.5.140.1
+@23.228.249.1
+@173.245.48.1
+@171.25.193.25
+# SNI on a cloud IP: tier B must WIN over tier C (the CDN case)
+www.netflix.com@23.228.249.1
+www.dropbox.com@3.5.140.1
+# unknown SNI on a known cloud IP: should fall back to the IP attribution
+totally-unknown-host.invalid@3.5.140.1

@@ -1,0 +1,20 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.env
+data/*.jsonl
+data/*.duckdb
+data/raw/
+.DS_Store
+*.egg-info/
+
+# vendored corpora — reproduce with scripts/vendor.sh
+third_party/
+
+# build artifacts
+build/
+
+# supplied snapshot tarball; the repo itself is the source of truth
+NGFW-ship.tar.gz

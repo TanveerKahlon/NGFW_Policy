@@ -1,0 +1,93 @@
+# NGFW crawl sources.
+#
+# kind:        http | rss | browser
+# strategy:    article | jsonld | selectors
+# rps:         per-domain requests/sec for this source (default: NGFW_DEFAULT_RPS)
+# impersonate: curl_cffi browser profile used only after a 403/429/503
+#              (e.g. chrome124, safari17_0)
+
+sources:
+  # ---------------------------------------------------------------- vendor PSIRT
+  - name: paloalto-psirt
+    kind: rss
+    enabled: true
+    url: https://security.paloaltonetworks.com/rss.xml
+    rps: 0.5
+    max_items: 25
+    extraction:
+      strategy: article
+      required_fields: [title, text]
+      optional_fields: [published, description]
+      min_quality_score: 0.5
+
+  - name: cisco-psirt
+    kind: rss
+    enabled: true
+    url: https://tools.cisco.com/security/center/psirtrss20/CiscoSecurityAdvisory.xml
+    rps: 0.5
+    max_items: 25
+    extraction:
+      strategy: article
+      required_fields: [title, text]
+      optional_fields: [published]
+      min_quality_score: 0.5
+
+  - name: fortinet-psirt
+    kind: rss
+    enabled: false          # JS-rendered advisory bodies; flip kind to browser if needed
+    url: https://filestore.fortinet.com/fortiguard/rss/ir.xml
+    rps: 0.5
+    max_items: 25
+    extraction:
+      strategy: article
+      required_fields: [title, text]
+      min_quality_score: 0.4
+
+  # ------------------------------------------------------------ government / CERT
+  - name: cisa-advisories
+    kind: rss
+    enabled: true
+    url: https://www.cisa.gov/cybersecurity-advisories/all.xml
+    rps: 0.5
+    max_items: 30
+    extraction:
+      strategy: article
+      required_fields: [title, text]
+      optional_fields: [published, author]
+      min_quality_score: 0.5
+
+  - name: sans-isc
+    kind: rss
+    enabled: false
+    url: https://isc.sans.edu/rssfeed_full.xml
+    rps: 0.3
+    max_items: 20
+    extraction:
+      strategy: article
+      required_fields: [title, text]
+      min_quality_score: 0.4
+
+  # ------------------------------------------------------------------ threat intel
+  - name: bleepingcomputer
+    kind: rss
+    enabled: false
+    url: https://www.bleepingcomputer.com/feed/
+    rps: 0.25
+    max_items: 20
+    impersonate: chrome124
+    extraction:
+      strategy: article
+      required_fields: [title, text]
+      optional_fields: [author, published]
+      min_quality_score: 0.5
+
+  # ------------------------------------------------------- single-page HTTP example
+  - name: cisa-kev-catalog
+    kind: http
+    enabled: false
+    url: https://www.cisa.gov/known-exploited-vulnerabilities-catalog
+    rps: 0.5
+    extraction:
+      strategy: article
+      required_fields: [title, text]
+      min_quality_score: 0.4
