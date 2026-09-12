@@ -18,3 +18,9 @@ build/
 
 # supplied snapshot tarball; the repo itself is the source of truth
 NGFW-ship.tar.gz
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+/graft/
+
+# per-user Claude Code state; project settings.json is shared
+.claude/settings.local.json
